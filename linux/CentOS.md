@@ -3,6 +3,8 @@
 ```bash
 # 更新
 yum -y update
+# 列出所有端口
+netstat -ntlp
 ```
 
 ## 安装node
@@ -68,13 +70,114 @@ systemctl restart sshd
 
 ## 安装nginx
 [下载地址](http://nginx.org/en/download.html)
-[文档地址](http://nginx.org/en/docs/)
+[文档地址](http://nginx.org/en/docs/configure.html)
 
 ```bash
 # 安装编译工具及库文件
 yum -y install make zlib zlib-devel gcc-c++ libtool  openssl openssl-devel
 
 wget http://nginx.org/download/nginx-1.16.1.tar.gz
+wget https://ftp.pcre.org/pub/pcre/pcre-8.43.tar.gz
+wget http://prdownloads.sourceforge.net/libpng/zlib-1.2.11.tar.gz?download
+
 tar -xzf nginx-1.16.1.tar.gz
-cd nginx-1.16.1.tar.gz
+tar -xzf pcre-8.43.tar.gz
+tar -xzf zlib-1.2.11.tar.gz?download
+
+cd nginx-1.16.1
+./configure \
+    --sbin-path=/usr/local/nginx/nginx \
+    --conf-path=/usr/local/nginx/nginx.conf \
+    --pid-path=/usr/local/nginx/nginx.pid \
+    --with-http_ssl_module \
+    --with-pcre=../pcre-8.43 \
+    --with-zlib=../zlib-1.2.11 \
+
+make && make install
+
+# 启动
+/usr/local/nginx/nginx
+
+stop — fast shutdown
+quit — graceful shutdown
+reload — reloading the configuration file
+reopen — reopening the log files
+
+nginx -s quit
+```
+
+## 防火墙
+```bash
+# 安装防火墙
+yum -y install firewalld firewall-config
+
+# 为了启动防火墙，要先重启下 dbus
+systemctl restart dbus
+
+# 启动一个服务
+systemctl start firewalld.service
+
+# 关闭一个服务
+systemctl stop firewalld.service
+ 
+# 重启一个服务
+systemctl restart firewalld.service
+
+# 显示一个服务的状态
+systemctl status firewalld.service
+ 
+# 在开机时启用一个服务
+systemctl enable firewalld.service
+
+# 在开机时禁用一个服务
+systemctl disable firewalld.service
+
+# 查看服务是否开机启动
+systemctl is-enabled firewalld.service
+ 
+# 查看已启动的服务列表
+systemctl list-unit-files|grep enabled
+ 
+# 查看启动失败的服务列表
+systemctl --failed
+
+# 查看版本
+firewall-cmd --version
+
+# 查看帮助
+firewall-cmd --help
+
+# 显示状态
+firewall-cmd --state
+
+# 查看所有打开的端口
+firewall-cmd --zone=public --list-ports
+
+# 更新防火墙规则
+firewall-cmd --reload
+ 
+# 查看区域信息
+firewall-cmd --get-active-zones
+
+# 查看指定接口所属区域
+firewall-cmd --get-zone-of-interface=eth0
+ 
+
+# 拒绝所有包，测试别用这个。不如然只有到VMWare 的终端上去关闭防火墙 SSH 客户端，稍显麻烦：
+firewall-cmd --panic-on
+
+# 取消拒绝状态
+firewall-cmd --panic-off
+
+# 查看是否拒绝
+firewall-cmd --query-panic
+
+# 开启一个端口 --permanent永久生效
+firewall-cmd --zone=public --add-port=80/tcp --permanent 
+# 重新载入
+firewall-cmd --reload
+# 查看
+firewall-cmd --zone=public --query-port=80/tcp
+# 删除
+firewall-cmd --zone= public --remove-port=80/tcp --permanent
 ```
