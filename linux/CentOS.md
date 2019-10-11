@@ -4,6 +4,7 @@
 # 更新
 yum -y update
 # 列出所有端口
+yum install net-tools
 netstat -ntlp
 ```
 
@@ -16,16 +17,29 @@ wget https://npm.taobao.org/mirrors/node/v10.15.0/node-v10.15.0-linux-x64.tar.xz
 sudo mkdir -p /usr/local/lib/nodejs
 sudo tar -xJvf node-v10.15.0-linux-x64.tar.xz -C /usr/local/lib/nodejs
 
-export PATH=/usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin:$PATH
+echo 'export PATH=/usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin:$PATH' > /etc/profile.d/node.sh
+chmod +x /etc/profile.d/node.sh
+source /etc/profile
+
 node -v
 npm -v
 npm config set registry https://registry.npm.taobao.org
+
+# pm2部署
+npm i pm2 -g
+pm2 start npm --name "name" -- run start
+pm2 list
 ```
 
 ## 安装java
 ```bash
 yum -y install java-1.8.0-openjdk.x86_64
 java -version
+# 启动java服务
+nohup java -jar blog-0.0.1-SNAPSHOT.jar &
+# 杀死java服务
+ps -aux | grep java
+kill -s 9 xxxxxx
 ```
 
 ## 安装git
@@ -78,11 +92,11 @@ yum -y install make zlib zlib-devel gcc-c++ libtool  openssl openssl-devel
 
 wget http://nginx.org/download/nginx-1.16.1.tar.gz
 wget https://ftp.pcre.org/pub/pcre/pcre-8.43.tar.gz
-wget http://prdownloads.sourceforge.net/libpng/zlib-1.2.11.tar.gz?download
+wget http://prdownloads.sourceforge.net/libpng/zlib-1.2.11.tar.gz
 
 tar -xzf nginx-1.16.1.tar.gz
 tar -xzf pcre-8.43.tar.gz
-tar -xzf zlib-1.2.11.tar.gz?download
+tar -xzf zlib-1.2.11.tar.gz
 
 cd nginx-1.16.1
 ./configure \
@@ -104,6 +118,39 @@ reload — reloading the configuration file
 reopen — reopening the log files
 
 nginx -s quit
+# 开机启动
+cd /lib/systemd/system/
+vi nginx.service
+[Unit]
+Description=nginx service
+After=network.target 
+   
+[Service] 
+Type=forking 
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s quit
+PrivateTmp=true 
+   
+[Install] 
+WantedBy=multi-user.target
+systemctl enable nginx
+# 取消开机启动
+systemctl disable nginx
+# 启动nginx服务
+systemctl start nginx.service
+# 停止服务
+systemctl stop nginx.service
+# 重新启动服务
+systemctl restart nginx.service
+# 查看所有已启动的服务
+systemctl list-units --type=service     
+# 查看服务当前状态
+systemctl status nginx.service         
+# 设置开机自启动
+systemctl enable nginx.service
+# 停止开机自启动
+systemctl disable nginx.service
 ```
 
 ## 防火墙
