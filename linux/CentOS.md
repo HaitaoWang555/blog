@@ -57,6 +57,14 @@ rpm -ivh mysql-community-release-el7-5.noarch.rpm
 yum update
 yum install mysql mysql-server mysql-devel -y
 
+# 设置字符 utf8mb4
+vi /etc/my.cnf
+[mysqld]
+character-set-server = utf8mb4
+collation-server = utf8mb4_bin
+[client]
+default-character-set=utf8mb4
+
 # 启动 MySQL
 systemctl start mysql.service
 # 查看 MySQL 运行状态
@@ -68,6 +76,11 @@ mysqladmin -u root password 密码
 # 登陆验证
 mysql -uroot -p密码
 show databases;
+show variables like 'character%';
+# 创建数据库
+CREATE DATABASE blog DEFAULT CHARACTER SET utf8mb4;
+# 运行.sql
+mysql -u root -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve/blog.sql
 ```
 
 ## ssh连接
