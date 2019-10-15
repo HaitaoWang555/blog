@@ -11,7 +11,7 @@ netstat -ntlp
 ## 安装node
 [下载地址](https://npm.taobao.org/mirrors/node/)
 [文档地址](https://github.com/nodejs/help/wiki/Installation)
-```
+```bash
 yum -y install wget
 wget https://npm.taobao.org/mirrors/node/v10.15.0/node-v10.15.0-linux-x64.tar.xz
 sudo mkdir -p /usr/local/lib/nodejs
@@ -27,8 +27,24 @@ npm config set registry https://registry.npm.taobao.org
 
 # pm2部署
 npm i pm2 -g
-pm2 start npm --name "name" -- run start
+sudo pm2 start npm --name "name" -- run start
+# 保存服务
+sudo pm2 save
+# 把已启动服务加到systemd中
+sudo pm2 startup
+# 重启，发现之前的服务都已经启动
+sudo systemctl reboot
+# 删除自动启动服务
+sudo pm2 unstartup systemd
+# 如果代码发生变动，需要重新save、startup
+# 查看启动服务列表
 pm2 list
+# 显示APP-NAME日志 
+pm2 logs APP-NAME       
+# 刷新所有日志 
+pm2 flush    
+# 重新加载所有日志             
+pm2 reloadLogs           
 ```
 
 ## 安装java
@@ -37,6 +53,19 @@ yum -y install java-1.8.0-openjdk.x86_64
 java -version
 # 启动java服务
 nohup java -jar blog-0.0.1-SNAPSHOT.jar &
+# 开机自启服务
+# 编写启动脚本
+touch /root/blog/blog-serve/blog-java-service.sh
+vi /root/blog/blog-serve/blog-java-service.sh
+    #!/bin/bash
+    cd /root/blog/blog-serve/
+    nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
+
+chmod +x /root/blog/blog-serve/blog-java-service.sh
+chmod +x /etc/rc.d/rc.local
+vi /etc/rc.d/rc.local
+su - root -c '/etc/rc.d/init.d/file-preview-server.sh'
+
 # 杀死java服务
 ps -aux | grep java
 kill -s 9 xxxxxx
@@ -239,5 +268,5 @@ firewall-cmd --reload
 # 查看
 firewall-cmd --zone=public --query-port=80/tcp
 # 删除
-firewall-cmd --zone= public --remove-port=80/tcp --permanent
+firewall-cmd --zone=public --remove-port=80/tcp --permanent
 ```
