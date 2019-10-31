@@ -27,15 +27,15 @@ npm config set registry https://registry.npm.taobao.org
 
 # pm2部署
 npm i pm2 -g
-sudo pm2 start npm --name "name" -- run start
+pm2 start npm --name "name" -- run start
 # 保存服务
-sudo pm2 save
+pm2 save
 # 把已启动服务加到systemd中
-sudo pm2 startup
+pm2 startup
 # 重启，发现之前的服务都已经启动
-sudo systemctl reboot
+systemctl reboot
 # 删除自动启动服务
-sudo pm2 unstartup systemd
+pm2 unstartup systemd
 # 如果代码发生变动，需要重新save、startup
 # 查看启动服务列表
 pm2 list
@@ -54,17 +54,46 @@ java -version
 # 启动java服务
 nohup java -jar blog-0.0.1-SNAPSHOT.jar &
 # 开机自启服务
-# 编写启动脚本
+# 编写启动脚本 最后一行要有空行
 touch /root/blog/blog-serve/blog-java-service.sh
 vi /root/blog/blog-serve/blog-java-service.sh
-    #!/bin/bash
-    cd /root/blog/blog-serve/
-    nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
+#!/bin/bash
+cd /root/blog/blog-serve/
+nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
 
-chmod +x /root/blog/blog-serve/blog-java-service.sh
-chmod +x /etc/rc.d/rc.local
-vi /etc/rc.d/rc.local
-su - root -c '/etc/rc.d/init.d/file-preview-server.sh'
+# 编写结束脚本
+touch /root/blog/blog-serve/stop-java-service.sh
+vi /root/blog/blog-serve/stop-java-service.sh
+
+#!/bin/sh
+PID=$(cat /root/blog/blog-serve/blog-java-service.pid)
+kill -9 $PID
+
+# 增加可执行权限
+chmod +x /root/blog/blog-serve/blog-java-service.sh /root/blog/blog-serve/stop-java-service.sh
+
+# 编写注册服务
+cd /usr/lib/systemd/system
+touch java-blog-service.service
+vi java-blog-service.service
+
+[Unit]
+Description=java-blog-service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/root/blog/blog-serve/blog-java-service.sh
+ExecStop=/root/blog/blog-serve/stop-java-service.sh
+PrivateTmp=true
+ 
+[Install]
+WantedBy=multi-user.target
+
+# 
+systemctl enable java-blog-service.service #开机自启动
+systemctl stop java-blog-service.service  #停止
+systemctl start java-blog-service.service  #启动
 
 # 杀死java服务
 ps -aux | grep java
@@ -169,16 +198,15 @@ After=network.target
    
 [Service] 
 Type=forking 
-ExecStart=/usr/local/nginx/sbin/nginx
-ExecReload=/usr/local/nginx/sbin/nginx -s reload
-ExecStop=/usr/local/nginx/sbin/nginx -s quit
+ExecStart=/usr/local/nginx/nginx
+ExecReload=/usr/local/nginx/nginx -s reload
+ExecStop=/usr/local/nginx/nginx -s quit
 PrivateTmp=true 
    
 [Install] 
 WantedBy=multi-user.target
-systemctl enable nginx
-# 取消开机启动
-systemctl disable nginx
+# 重载systemctl
+systemctl daemon-reload
 # 启动nginx服务
 systemctl start nginx.service
 # 停止服务
