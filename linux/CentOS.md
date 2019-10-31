@@ -24,6 +24,10 @@ source /etc/profile
 node -v
 npm -v
 npm config set registry https://registry.npm.taobao.org
+# 使用 sudo npm
+sudo ln -s /usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin/node /usr/bin/node
+sudo ln -s /usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin/npm /usr/bin/npm
+
 
 # pm2部署
 npm i pm2 -g
@@ -60,6 +64,7 @@ vi /root/blog/blog-serve/blog-java-service.sh
 #!/bin/bash
 cd /root/blog/blog-serve/
 nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
+echo $! > /root/blog/blog-serve/blog-java-service.pid
 
 # 编写结束脚本
 touch /root/blog/blog-serve/stop-java-service.sh
