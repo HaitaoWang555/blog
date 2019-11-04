@@ -17,6 +17,8 @@ show tables;
 describe yonghu;
 # 添加一条数据
 insert into yonghu values ('123');
+# 删除一条数据
+delete from yonghu where name=123;
 # 查询用户表所有字段
 select * from yonghu;
 # 删除用户表所有数据
@@ -32,4 +34,25 @@ UPDATE article a
   LEFT JOIN article b
   ON a.id = b.id
   SET a.type = 'markdownEditor'
+```
+
+## 重置密码
+```bash
+# 安全模式启动
+/usr/bin/mysqld_safe --skip-grant-tables &
+
+use mysql;
+update user set password=password('123456') where user='root';
+flush privileges;
+exit;
+
+# 杀掉mysqld进程
+ps -aux | grep mysqld
+kill -s 9 xxxxxx
+
+# 启动
+systemctl start mysql.service
+
+# 登录
+mysql -uroot -p'密码'
 ```
