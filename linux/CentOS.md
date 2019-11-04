@@ -54,28 +54,29 @@ pm2 reloadLogs
 ## 安装java
 ```bash
 yum -y install java-1.8.0-openjdk.x86_64
+yum -y install java-1.8.0-openjdk-devel.x86_64
 java -version
 # 启动java服务
 nohup java -jar blog-0.0.1-SNAPSHOT.jar &
 # 开机自启服务
 # 编写启动脚本 最后一行要有空行
-touch /root/blog/blog-serve/blog-java-service.sh
-vi /root/blog/blog-serve/blog-java-service.sh
+touch /root/blog/blog-serve-java/target/blog-java-service.sh
+vi /root/blog/blog-serve-java/target/blog-java-service.sh
 #!/bin/bash
-cd /root/blog/blog-serve/
+cd /root/blog/blog-serve-java/target/
 nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
-echo $! > /root/blog/blog-serve/blog-java-service.pid
+echo $! > /root/blog/blog-serve-java/target/blog-java-service.pid
 
 # 编写结束脚本
-touch /root/blog/blog-serve/stop-java-service.sh
-vi /root/blog/blog-serve/stop-java-service.sh
+touch /root/blog/blog-serve-java/target/stop-java-service.sh
+vi /root/blog/blog-serve-java/target/stop-java-service.sh
 
 #!/bin/sh
-PID=$(cat /root/blog/blog-serve/blog-java-service.pid)
+PID=$(cat /root/blog/blog-serve-java/target/blog-java-service.pid)
 kill -9 $PID
 
 # 增加可执行权限
-chmod +x /root/blog/blog-serve/blog-java-service.sh /root/blog/blog-serve/stop-java-service.sh
+chmod +x /root/blog/blog-serve-java/target/blog-java-service.sh /root/blog/blog-serve-java/target/stop-java-service.sh
 
 # 编写注册服务
 cd /usr/lib/systemd/system
@@ -88,8 +89,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/root/blog/blog-serve/blog-java-service.sh
-ExecStop=/root/blog/blog-serve/stop-java-service.sh
+ExecStart=/root/blog/blog-serve-java/target/blog-java-service.sh
+ExecStop=/root/blog/blog-serve-java/target/stop-java-service.sh
 PrivateTmp=true
  
 [Install]
@@ -103,6 +104,14 @@ systemctl start java-blog-service.service  #启动
 # 杀死java服务
 ps -aux | grep java
 kill -s 9 xxxxxx
+
+#安装 maven
+wget http://mirrors.hust.edu.cn/apache/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
+tar -zxf apache-maven-3.1.1-bin.tar.gz -C /usr/local/
+echo 'export PATH=/usr/local/apache-maven-3.1.1/bin:$PATH' > /etc/profile.d/maven3.sh
+chmod +x /etc/profile.d/maven3.sh
+source /etc/profile
+mvn -v
 ```
 
 ## 安装git
@@ -143,7 +152,7 @@ show variables like 'character%';
 # 创建数据库
 CREATE DATABASE blog DEFAULT CHARACTER SET utf8mb4;
 # 运行.sql
-mysql -u root -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve/blog.sql
+mysql -u root -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve-java/target/blog.sql
 ```
 
 ## ssh连接
