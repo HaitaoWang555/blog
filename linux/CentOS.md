@@ -112,6 +112,7 @@ echo 'export PATH=/usr/local/apache-maven-3.1.1/bin:$PATH' > /etc/profile.d/mave
 chmod +x /etc/profile.d/maven3.sh
 source /etc/profile
 mvn -v
+mvn -DskipTests=true package
 ```
 
 ## 安装git
@@ -152,7 +153,7 @@ show variables like 'character%';
 # 创建数据库
 CREATE DATABASE blog DEFAULT CHARACTER SET utf8mb4;
 # 运行.sql
-mysql -u root -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve-java/target/blog.sql
+mysql -uroot -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve-java/target/blog.sql
 ```
 
 ## ssh连接
