@@ -15,6 +15,8 @@ create table yonghu(name varchar(20));
 show tables;
 # 显示表的结构
 describe yonghu;
+# 修改表字符属性
+alter table yonghu character set utf8mb4;
 # 添加一条数据
 insert into yonghu values ('123');
 # 删除一条数据
@@ -27,13 +29,20 @@ delete from yonghu;
 alter table yonghu rename xx;
 # 删除表
 drop table xx;
+# 删除数据库
+drop databases xx;
 # 导入.sql文件
 source /root/mysql.sql;
 # 批量更改 article 表中的 type 字段
 UPDATE article a
   LEFT JOIN article b
   ON a.id = b.id
-  SET a.type = 'markdownEditor'
+  SET a.comment_count = null
+
+# 导出数据库结构.sql文件
+mysqldump -h localhost -uroot -p'123456' -d blog > dump.sql
+# 导出数据库结构及数据.sql文件
+mysqldump -h localhost -uroot -p'123456' blog > dump.sql
 ```
 
 ## 重置密码

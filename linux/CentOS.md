@@ -114,6 +114,7 @@ echo 'export PATH=/usr/local/apache-maven-3.1.1/bin:$PATH' > /etc/profile.d/mave
 chmod +x /etc/profile.d/maven3.sh
 source /etc/profile
 mvn -v
+mvn -DskipTests=true package
 ```
 
 ## 安装git
