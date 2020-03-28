@@ -56,3 +56,8 @@ systemctl start mysql.service
 # 登录
 mysql -uroot -p'密码'
 ```
+
+## win10 多Mysql
+
+[下载](https://dev.mysql.com/downloads/mysql/)
+

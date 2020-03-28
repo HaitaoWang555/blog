@@ -48,7 +48,9 @@ pm2 logs APP-NAME
 # 刷新所有日志 
 pm2 flush    
 # 重新加载所有日志             
-pm2 reloadLogs           
+pm2 reloadLogs
+# 删除指定应用 id 0
+pm2 delete 0                  
 ```
 
 ## 安装java
@@ -60,23 +62,23 @@ java -version
 nohup java -jar blog-0.0.1-SNAPSHOT.jar &
 # 开机自启服务
 # 编写启动脚本 最后一行要有空行
-touch /root/blog/blog-serve-java/target/blog-java-service.sh
-vi /root/blog/blog-serve-java/target/blog-java-service.sh
+touch /root/blog/blog-serve-java/bash/blog-java-service.sh
+vi /root/blog/blog-serve-java/bash/blog-java-service.sh
 #!/bin/bash
-cd /root/blog/blog-serve-java/target/
-nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
-echo $! > /root/blog/blog-serve-java/target/blog-java-service.pid
+cd /root/blog/blog-serve-java/bash/
+nohup java -jar /root/blog/blog-serve-java/target/blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
+echo $! > /root/blog/blog-serve-java/bash/blog-java-service.pid
 
 # 编写结束脚本
-touch /root/blog/blog-serve-java/target/stop-java-service.sh
-vi /root/blog/blog-serve-java/target/stop-java-service.sh
+touch /root/blog/blog-serve-java/bash/stop-java-service.sh
+vi /root/blog/blog-serve-java/bash/stop-java-service.sh
 
 #!/bin/sh
-PID=$(cat /root/blog/blog-serve-java/target/blog-java-service.pid)
+PID=$(cat /root/blog/blog-serve-java/bash/blog-java-service.pid)
 kill -9 $PID
 
 # 增加可执行权限
-chmod +x /root/blog/blog-serve-java/target/blog-java-service.sh /root/blog/blog-serve-java/target/stop-java-service.sh
+chmod +x /root/blog/blog-serve-java/bash/blog-java-service.sh /root/blog/blog-serve-java/bash/stop-java-service.sh
 
 # 编写注册服务
 cd /usr/lib/systemd/system
@@ -89,8 +91,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/root/blog/blog-serve-java/target/blog-java-service.sh
-ExecStop=/root/blog/blog-serve-java/target/stop-java-service.sh
+ExecStart=/root/blog/blog-serve-java/bash/blog-java-service.sh
+ExecStop=/root/blog/blog-serve-java/bash/stop-java-service.sh
 PrivateTmp=true
  
 [Install]
@@ -152,7 +154,7 @@ show variables like 'character%';
 # 创建数据库
 CREATE DATABASE blog DEFAULT CHARACTER SET utf8mb4;
 # 运行.sql
-mysql -u root -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve-java/target/blog.sql
+mysql -u root -p123456 --default-character-set=utf8mb4 blog < /root/blog/blog-serve-java/bash/blog.sql
 ```
 
 ## ssh连接
@@ -311,4 +313,34 @@ firewall-cmd --reload
 firewall-cmd --zone=public --query-port=80/tcp
 # 删除
 firewall-cmd --zone=public --remove-port=80/tcp --permanent
+```
+
+## 安装Redis 
+```bash
+# 添加EPEL存储库
+sudo yum install epel-release
+sudo yum update
+
+# 安装Redis
+sudo yum install redis
+# 启动Redis
+sudo systemctl start redis
+# 开机启动
+sudo systemctl enable redis
+# 验证安装
+redis-cli ping
+PONG
+# 配置Redis 
+# 持久性选项
+/etc/redis.conf
+appendonly yes
+appendfsync everysec
+
+sudo systemctl restart redis
+# 基本系统调整
+sudo sysctl vm.overcommit_memory=1
+# 永久生效
+vi /etc/sysctl.conf
+vm.overcommit_memory = 1
+
 ```
