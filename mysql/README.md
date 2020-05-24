@@ -38,6 +38,8 @@ UPDATE article a
   LEFT JOIN article b
   ON a.id = b.id
   SET a.comment_count = null
+# 获取表行数
+SELECT COUNT(*) FROM article;
 
 # 导出数据库结构.sql文件
 mysqldump -h localhost -uroot -p'123456' -d blog > dump.sql

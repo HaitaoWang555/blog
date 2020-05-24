@@ -59,7 +59,7 @@ yum -y install java-1.8.0-openjdk.x86_64
 yum -y install java-1.8.0-openjdk-devel.x86_64
 java -version
 # 启动java服务
-nohup java -jar blog-0.0.1-SNAPSHOT.jar &
+nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
 # 开机自启服务
 # 编写启动脚本 最后一行要有空行
 touch /root/blog/blog-serve-java/bash/blog-java-service.sh
