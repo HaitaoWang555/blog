@@ -30,7 +30,7 @@ alter table yonghu rename xx;
 # 删除表
 drop table xx;
 # 删除数据库
-drop databases xx;
+drop database xx;
 # 导入.sql文件
 source /root/mysql.sql;
 # 批量更改 article 表中的 type 字段
@@ -72,3 +72,22 @@ mysql -uroot -p'密码'
 
 [下载](https://dev.mysql.com/downloads/mysql/)
 
+centos7 安装 mysql8
+
+```bash
+# 配置Mysql 8.0安装源
+sudo rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+# 安装Mysql 8.0
+sudo yum --enablerepo=mysql80-community install mysql-community-server
+# 启动 MySQL
+systemctl start mysql.service
+# 查看 MySQL 运行状态
+systemctl status mysqld
+# 验证
+netstat -anp|grep 3306
+# 查看root临时密码
+grep "A temporary password" /var/log/mysqld.log
+# 更改密码
+mysql -uroot -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'new password';
+```

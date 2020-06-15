@@ -8,16 +8,23 @@ yum install net-tools
 netstat -ntlp
 ```
 
+## CentOS7修改SSH端口
+```
+vi /etc/ssh/sshd_config
+Port 22
+systemctl restart sshd.service
+```
+
 ## 安装node
 [下载地址](https://npm.taobao.org/mirrors/node/)
 [文档地址](https://github.com/nodejs/help/wiki/Installation)
 ```bash
 yum -y install wget
-wget https://npm.taobao.org/mirrors/node/v10.15.0/node-v10.15.0-linux-x64.tar.xz
+wget https://npm.taobao.org/mirrors/node/v12.18.0/node-v12.18.0-linux-x64.tar.xz
 sudo mkdir -p /usr/local/lib/nodejs
-sudo tar -xJvf node-v10.15.0-linux-x64.tar.xz -C /usr/local/lib/nodejs
+sudo tar -xJvf node-v12.18.0-linux-x64.tar.xz -C /usr/local/lib/nodejs
 
-echo 'export PATH=/usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin:$PATH' > /etc/profile.d/node.sh
+echo 'export PATH=/usr/local/lib/nodejs/node-v12.18.0-linux-x64/bin:$PATH' > /etc/profile.d/node.sh
 chmod +x /etc/profile.d/node.sh
 source /etc/profile
 
@@ -25,8 +32,8 @@ node -v
 npm -v
 npm config set registry https://registry.npm.taobao.org
 # 使用 sudo npm
-sudo ln -s /usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin/node /usr/bin/node
-sudo ln -s /usr/local/lib/nodejs/node-v10.15.0-linux-x64/bin/npm /usr/bin/npm
+sudo ln -s /usr/local/lib/nodejs/node-v12.18.0-linux-x64/bin/node /usr/bin/node
+sudo ln -s /usr/local/lib/nodejs/node-v12.18.0-linux-x64/bin/npm /usr/bin/npm
 
 
 # pm2部署
@@ -62,46 +69,48 @@ java -version
 nohup java -jar blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
 # 开机自启服务
 # 编写启动脚本 最后一行要有空行
-touch /root/blog/blog-serve-java/bash/blog-java-service.sh
-vi /root/blog/blog-serve-java/bash/blog-java-service.sh
+touch /blog/blog-admin-service.sh
+vi /blog/blog-admin-service.sh
+
 #!/bin/bash
-cd /root/blog/blog-serve-java/bash/
-nohup java -jar /root/blog/blog-serve-java/target/blog-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &
-echo $! > /root/blog/blog-serve-java/bash/blog-java-service.pid
+cd /blog/
+nohup java -jar /blog/wht-blog/item-admin/target/item-admin-1.0-SNAPSHOT.jar --spring.profiles.active=prod &
+echo $! > /blog/blog-admin-service.pid
+
 
 # 编写结束脚本
-touch /root/blog/blog-serve-java/bash/stop-java-service.sh
-vi /root/blog/blog-serve-java/bash/stop-java-service.sh
+touch /blog/stop-blog-admin-service.sh
+vi /blog/stop-blog-admin-service.sh
 
 #!/bin/sh
-PID=$(cat /root/blog/blog-serve-java/bash/blog-java-service.pid)
+PID=$(cat /blog/blog-admin-service.pid)
 kill -9 $PID
 
 # 增加可执行权限
-chmod +x /root/blog/blog-serve-java/bash/blog-java-service.sh /root/blog/blog-serve-java/bash/stop-java-service.sh
+chmod +x blog-admin-service.sh blog-portal-service.sh stop-blog-admin-service.sh stop-blog-portal-service.sh
 
 # 编写注册服务
 cd /usr/lib/systemd/system
-touch java-blog-service.service
-vi java-blog-service.service
+touch blog-admin-service.service
+vi blog-admin-service.service
 
 [Unit]
-Description=java-blog-service
+Description=blog-admin-service
 After=network.target
 
 [Service]
 Type=forking
-ExecStart=/root/blog/blog-serve-java/bash/blog-java-service.sh
-ExecStop=/root/blog/blog-serve-java/bash/stop-java-service.sh
+ExecStart=/blog/blog-admin-service.sh
+ExecStop=/blog/stop-blog-admin-service.sh
 PrivateTmp=true
  
 [Install]
 WantedBy=multi-user.target
 
 # 
-systemctl enable java-blog-service.service #开机自启动
-systemctl stop java-blog-service.service  #停止
-systemctl start java-blog-service.service  #启动
+systemctl enable blog-admin-service.service #开机自启动
+systemctl stop blog-admin-service.service  #停止
+systemctl start blog-admin-service.service  #启动
 
 # 杀死java服务
 ps -aux | grep java
@@ -109,8 +118,8 @@ kill -s 9 xxxxxx
 
 #安装 maven
 wget http://mirrors.hust.edu.cn/apache/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
-tar -zxf apache-maven-3.1.1-bin.tar.gz -C /usr/local/
-echo 'export PATH=/usr/local/apache-maven-3.1.1/bin:$PATH' > /etc/profile.d/maven3.sh
+tar -zxf apache-maven-3.1.1-bin.tar.gz -C /usr/local/lib/
+echo 'export PATH=/usr/local/lib/apache-maven-3.1.1/bin:$PATH' > /etc/profile.d/maven3.sh
 chmod +x /etc/profile.d/maven3.sh
 source /etc/profile
 mvn -v
@@ -124,13 +133,14 @@ yum install git
 
 ## 安装mysql
 [下载地址](https://dev.mysql.com/downloads/repo/yum/)
+[安装文档](https://dev.mysql.com/doc/refman/8.0/en/linux-installation-yum-repo.html)
 
 ```bash
 cd /tmp
-wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm  
-rpm -ivh mysql-community-release-el7-5.noarch.rpm
+wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+rpm -ivh mysql80-community-release-el7-3.noarch.rpm
 yum update
-yum install mysql mysql-server mysql-devel -y
+sudo yum install mysql-community-server
 
 # 设置字符 utf8mb4
 vi /etc/my.cnf
@@ -141,13 +151,12 @@ collation-server = utf8mb4_bin
 default-character-set=utf8mb4
 
 # 启动 MySQL
-systemctl start mysql.service
+sudo service mysqld start
 # 查看 MySQL 运行状态
 systemctl status mysqld
 # 验证
 netstat -anp|grep 3306
-# 设置密码
-mysqladmin -u root password 密码
+
 # 登陆验证
 mysql -uroot -p密码
 show databases;
@@ -193,7 +202,7 @@ cd nginx-1.16.1
     --pid-path=/usr/local/nginx/nginx.pid \
     --with-http_ssl_module \
     --with-pcre=../pcre-8.43 \
-    --with-zlib=../zlib-1.2.11 \
+    --with-zlib=../zlib-1.2.11
 
 make && make install
 
@@ -343,5 +352,8 @@ sudo sysctl vm.overcommit_memory=1
 # 永久生效
 vi /etc/sysctl.conf
 vm.overcommit_memory = 1
+# 设置密码
+/etc/redis.conf
+requirepass xxxxx
 
 ```
