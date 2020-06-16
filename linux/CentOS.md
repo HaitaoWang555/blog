@@ -13,6 +13,8 @@ netstat -ntlp
 vi /etc/ssh/sshd_config
 Port 22
 systemctl restart sshd.service
+# 登录指定端口
+ssh -p xxx root@xx.xx.x.xx
 ```
 
 ## 安装node
@@ -87,6 +89,7 @@ PID=$(cat /blog/blog-admin-service.pid)
 kill -9 $PID
 
 # 增加可执行权限
+cd /blog
 chmod +x blog-admin-service.sh blog-portal-service.sh stop-blog-admin-service.sh stop-blog-portal-service.sh
 
 # 编写注册服务
