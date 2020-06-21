@@ -6,6 +6,8 @@ yum -y update
 # 列出所有端口
 yum install net-tools
 netstat -ntlp
+# zip压缩包
+yum install -y unzip zip
 ```
 
 ## CentOS7修改SSH端口
@@ -345,7 +347,7 @@ PONG
 /etc/redis.conf
 appendonly yes
 appendfsync everysec
-
+curl https://localhost:8081/api/manage/poetry/search?pageNum=1&pageSize=20&author=%E6%9D%8E%E7%99%BD
 sudo systemctl restart redis
 # 基本系统调整
 sudo sysctl vm.overcommit_memory=1
@@ -355,5 +357,68 @@ vm.overcommit_memory = 1
 # 设置密码
 /etc/redis.conf
 requirepass xxxxx
+
+```
+## 安装 ElasticSearch
+
+[下载地址](https://www.elastic.co/downloads/elasticsearch)
+
+```bash
+tar -zxvf elasticsearch-7.8.0-linux-x86_64.tar.gz
+
+# 在解压后的文件夹里创建一个data文件夹，一会存数据文件用
+cd elasticsearch-7.8.0
+mkdir data
+```
+```
+目录结构介绍：
+bin：可执行文件，运行es的命令
+config：配置文件目录
+ config/elasticsearch.yml：ES启动基础配置
+ config/jvm.options：ES启动时JVM配置
+ config/log4j2.properties：ES日志输出配置文件
+lib：依赖的jar
+logs：日志文件夹
+modules：es模块
+plugins：可以自己开发的插件
+data：我们自己创建的，存放es存储文件
+```
+
+```bash
+# 安装elasticsearch-analysis-ik
+cd plugins
+mkdir analysis-ik
+cd analysis-ik
+wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.8.0/elasticsearch-analysis-ik-7.8.0.zip
+unzip elasticsearch-analysis-ik-7.8.0.zip
+```
+
+```bash
+vi /etc/sysctl.conf
+vm.max_map_count = 262144
+sudo sysctl -p
+```
+
+```bash
+# 创建用户并赋予es安装目录权限
+useradd -c 'ES user' -d /home/esroot esroot
+passwd esroot
+
+chown -R esroot elasticsearch-7.8.0
+chmod -R 775 elasticsearch-7.8.0
+su esroot
+
+cd /bin
+./elasticsearch -d
+```
+
+```bash
+ps -ef | grep elastic
+
+kill -9 2382（进程号)
+```
+
+```
+wget https://artifacts.elastic.co/downloads/kibana/kibana-7.8.0-linux-x86_64.tar.gz
 
 ```
