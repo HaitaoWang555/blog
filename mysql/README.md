@@ -72,7 +72,7 @@ mysql -uroot -p'密码'
 
 [下载](https://dev.mysql.com/downloads/mysql/)
 
-centos7 安装 mysql8
+## centos7 安装 mysql8
 
 ```bash
 # 配置Mysql 8.0安装源
@@ -90,4 +90,23 @@ grep "A temporary password" /var/log/mysqld.log
 # 更改密码
 mysql -uroot -p
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'new password';
+```
+
+```bash
+
+SHOW VARIABLES LIKE '%sql_mode%';
+SHOW VARIABLES LIKE '%explicit_defaults_for_timestamp%';
+SET @@SESSION.explicit_defaults_for_timestamp = 'OFF';
+
+vi  /etc/my.cnf
+explicit_defaults_for_timestamp=false
+```
+## 导入csv
+
+```bash
+load data local infile "E:\\csv\\weijinmonanbeichaochu.csv"
+into table poetry
+fields terminated by ',' optionally enclosed by '"' lines terminated by '\r\n'
+ignore 1 lines
+(title, dynasty, author, content);
 ```
