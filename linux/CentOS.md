@@ -423,5 +423,13 @@ kill -9 2382（进程号)
 
 ```
 wget https://artifacts.elastic.co/downloads/kibana/kibana-7.8.0-linux-x86_64.tar.gz
+tar -zxvf kibana-7.8.0-linux-x86_64.tar.gz
 
+chown -R esroot kibana-7.8.0-linux-x86_64
+chmod -R 775 kibana-7.8.0-linux-x86_64
+su esroot
+vi config/kibana.yml
+
+server.host: "0.0.0.0"
+i18n.locale: "zh-CN"
 ```
