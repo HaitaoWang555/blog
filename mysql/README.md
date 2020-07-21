@@ -17,6 +17,8 @@ show tables;
 describe yonghu;
 # 修改表字符属性
 alter table yonghu character set utf8mb4;
+# 修改表字段的长度
+alter table 表名 table 字段名  数据类型(修改后的长度)
 # 添加一条数据
 insert into yonghu values ('123');
 # 删除一条数据
@@ -40,6 +42,13 @@ UPDATE article a
   SET a.comment_count = null
 # 获取表行数
 SELECT COUNT(*) FROM article;
+
+
+# 导出数据库结构忽略一张表
+mysqldump -h localhost -uroot -p'密码' 数据库名 --ignore-table=数据库名.表名 > 自定义名称.sql
+
+# 导出数据库结构忽略多张表
+mysqldump -h localhost -uroot -p'密码' 数据库名 --ignore-table=数据库名.表名1 --ignore-table=数据库名.表名2 > 自定义名字.sql
 
 # 导出数据库结构.sql文件
 mysqldump -h localhost -uroot -p'123456' -d blog > dump.sql
