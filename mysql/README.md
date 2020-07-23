@@ -72,6 +72,44 @@ mysql -uroot -p'密码'
 
 [下载](https://dev.mysql.com/downloads/mysql/)
 
+第二个
+
+新建my.ini文件
+```
+[mysqld]
+# 设置3307端口
+port=3307
+explicit_defaults_for_timestamp=true
+default_password_lifetime=0
+# 设置mysql的安装目录
+basedir=D:\mysql-8.0.21-winx64
+# 设置mysql数据库的数据的存放目录
+datadir=D:\mysql-8.0.21-winx64\data
+# 允许最大连接数
+max_connections=200
+# 允许连接失败的次数。
+max_connect_errors=10
+
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+
+[mysql]
+default-character-set=utf8mb4
+[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=3307
+default-character-set=utf8mb4
+```
+用管理员命令模式进入mysql/bin目录，进行mysql初始化安装
+mysqld --initialize --console
+控制台会打印出密码，请记住初始化密码，如果忘记把根目录data文件夹删除，重新执行上面语句。
+mysqld --install mysql1
+net start mysql1
+mysql -uroot -p
+alter user 'root'@'localhost' identified with mysql_native_password by '123456';
+
+
+
 ## centos7 安装 mysql8
 
 ```bash
