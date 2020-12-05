@@ -409,6 +409,15 @@ passwd esroot
 
 chown -R esroot elasticsearch-7.8.0
 chmod -R 775 elasticsearch-7.8.0
+```
+vi /etc/security/limits.conf
+esroot soft nofile 100001
+esroot hard nofile 100002
+root soft nofile 100001
+root hard nofile 100002
+
+```
+
 su esroot
 
 cd /bin
@@ -432,4 +441,10 @@ vi config/kibana.yml
 
 server.host: "0.0.0.0"
 i18n.locale: "zh-CN"
+```
+
+## wget
+
+```bash
+wget -m -e robots=off
 ```

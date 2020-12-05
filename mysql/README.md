@@ -19,6 +19,8 @@ describe yonghu;
 alter table yonghu character set utf8mb4;
 # 修改表字段的长度
 alter table 表名 table 字段名  数据类型(修改后的长度)
+# 增加某个字段
+ALTER TABLE cms_article ADD COLUMN comment_count int(11) NOT NULL DEFAULT '0' COMMENT '文章评论数量';
 # 添加一条数据
 insert into yonghu values ('123');
 # 删除一条数据
@@ -29,6 +31,8 @@ select * from yonghu;
 delete from yonghu;
 # 改变表名
 alter table yonghu rename xx;
+# 删除某个字段
+ALTER TABLE cms_article drop COLUMN updated_content_time;
 # 删除表
 drop table xx;
 # 删除数据库
@@ -36,10 +40,10 @@ drop database xx;
 # 导入.sql文件
 source /root/mysql.sql;
 # 批量更改 article 表中的 type 字段
-UPDATE article a
-  LEFT JOIN article b
+UPDATE cms_article a
+  LEFT JOIN cms_article b
   ON a.id = b.id
-  SET a.comment_count = null
+  SET a.updated_content_time = a.created_time
 # 获取表行数
 SELECT COUNT(*) FROM article;
 
@@ -104,6 +108,9 @@ default-storage-engine=INNODB
 
 [mysql]
 default-character-set=utf8mb4
+[mysqld]
+# 不对mysqld 的导入|导出做限制
+secure_file_priv =
 [client]
 # 设置mysql客户端连接服务端时默认使用的端口
 port=3307
